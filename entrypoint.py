@@ -17,7 +17,7 @@ if not model or not language or not url_base:
 
 SUPPORTED_LANGUAGES = ['ansible', 'tosca', 'terraform', 'kubernetes']
 if language not in SUPPORTED_LANGUAGES:
-    print(f"⚠️ Linguaggio '{language}' non supportato. Scegli tra: {', '.join(SUPPORTED_LANGUAGES)}")
+    print(f" Linguaggio '{language}' non supportato. Scegli tra: {', '.join(SUPPORTED_LANGUAGES)}")
     sys.exit(1)
 
 github_token = os.getenv('GITHUB_TOKEN')
@@ -25,7 +25,7 @@ github_repo  = os.getenv('GITHUB_REPOSITORY')
 github_sha   = os.getenv('GITHUB_SHA')
 
 if not github_token or not github_repo or not github_sha:
-    print("❌ Variabili d'ambiente GitHub mancanti.")
+    print(" Variabili d'ambiente GitHub mancanti.")
     sys.exit(1)
 
 g     = Github(github_token)
@@ -33,7 +33,7 @@ repo  = g.get_repo(github_repo)
 files = repo.get_commit(sha=github_sha).files
 
 print(f"\n🔍 Analisi commit {github_sha} su repo {github_repo}")
-print(f"📦 Modello: {model} | 🌐 Backend: {url_base} | 🗂 Linguaggio: {language}\n")
+print(f" Modello: {model} |  Backend: {url_base} |  Linguaggio: {language}\n")
 
 
 def extract_metrics(language: str, content: str) -> dict:
@@ -76,7 +76,7 @@ for file in files:
     try:
         content = repo.get_contents(file.filename, ref=github_sha).decoded_content.decode()
     except Exception as e:
-        print(f"⚠️ Impossibile leggere {file.filename}: {e}")
+        print(f" Impossibile leggere {file.filename}: {e}")
         continue
 
     # Per Kubernetes skippa file .yml che non sono manifest
@@ -90,10 +90,10 @@ for file in files:
     metrics = {}
     try:
         metrics = extract_metrics(language, content)
-        print(f"📊 Metriche estratte:")
+        print(f" Metriche estratte:")
         print(json.dumps(metrics, indent=2))
     except Exception as e:
-        print(f"⚠️ Errore durante l'estrazione delle metriche: {e}")
+        print(f" Errore durante l'estrazione delle metriche: {e}")
         metrics = {"syntax_error": 1}
 
     url = f'{url_base}/predict?model_id={model}'
@@ -107,15 +107,15 @@ for file in files:
         if response.status_code == 200:
             res    = json.loads(response.content.decode())
             is_bad = res.get("failure_prone", False)
-            icon   = "❌ DIFETTOSO" if is_bad else "✅ PULITO"
+            icon   = " DIFETTOSO" if is_bad else " PULITO"
             print(f"\n{icon} | File: {file.filename}")
             print(f"Dettaglio risposta: {json.dumps(res, indent=2)}")
         else:
-            print(f"❌ Errore dal backend. Status: {response.status_code}, Body: {response.text}")
+            print(f" Errore dal backend. Status: {response.status_code}, Body: {response.text}")
     except Exception as e:
-        print(f"⚠️ Impossibile contattare il backend: {e}")
+        print(f" Impossibile contattare il backend: {e}")
 
     sys.stdout.flush()
 
 if not found_files:
-    print(f"ℹ️ Nessun file {language} trovato in questo commit.")
+    print(f" Nessun file {language} trovato in questo commit.")
