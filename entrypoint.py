@@ -55,12 +55,22 @@ def extract_metrics(language: str, content: str) -> dict:
         return extractor.get_product_metrics(content)
 
     elif language == 'kubernetes':
-        from kubernetes_metrics import extract_kubernetes
-        return extract_kubernetes(content)
+        from repominer.metrics.kubernetes import KubernetesMetricsExtractor
+        extractor = TerraformMetricsExtractor(
+            path_to_repo='/github/workspace',
+            clone_repo_to='/github/workspace',
+            at='release'
+        )
+        return extractor.get_product_metrics(content)
 
     elif language == 'docker':
-        from docker_metrics import extract_docker
-        return extract_docker(content)
+        from repominer.metrics.docker import KubernetesMetricsExtractor
+        extractor = TerraformMetricsExtractor(
+            path_to_repo='/github/workspace',
+            clone_repo_to='/github/workspace',
+            at='release'
+        )
+        return extractor.get_product_metrics(content)
 
 
 FILE_EXTENSIONS = {
